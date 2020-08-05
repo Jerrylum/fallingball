@@ -2,7 +2,7 @@
 
 const targetFPS = 60;
 const minGroundMovesPerSec = 50;
-const maxGroundMovesPerSec = 215;
+const maxGroundMovesPerSec = 217;
 const ballOnGroundMovesPerSec = 200; //  1 move = move 1 pixel left or right
 const ballFlyingMovesPerSec = 100;
 const ballFlyingDownPerSec = 180;
@@ -16,24 +16,31 @@ const groundHolesProbability = { // how many holes
 // setting end
 // calc const
 
+let isDarkMode : boolean;
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
+let level_num : HTMLElement;
+let highest_level_num : HTMLElement;
+let restartBtn : HTMLElement;
 
 // calc const end
 // variable start
 
-let nowGroundMovesPerSec = minGroundMovesPerSec; // 1 move = move 1 pixel up
-let nowBallToLeft = false;
-let nowBallToRight = false;
-let nowBallOnGround = false;
-let nowBallMovesPerSec = ballOnGroundMovesPerSec;
-let nowBallDownPerSec = ballFlyingDownPerSec;
-let nowLevel = 1;
-let lastTickGroundMove = 0;
-let lastTickBallMove = 0;
+let nowGroundMovesPerSec : number; // 1 move = move 1 pixel up
+let nowBallToLeft : boolean;
+let nowBallToRight : boolean;
+let nowBallOnGround : boolean;
+let nowBallMovesPerSec : number;
+let nowBallDownPerSec : number;
+let nowLevel : number;
+let lastTickGroundMove : number;
+let lastTickBallMove : number;
 
 let grounds: Array<Ground> = [];
 let ball: Ball = new Ball();
+let gameLoop;
+
+let highestLevel : number = 1;
 
 // vairable end
 
@@ -68,6 +75,8 @@ function updateEvent() {
 
     ball.draw();
 
+    level_num.innerText = nowLevel + '';
+    highest_level_num.innerText = highestLevel + '';
 
     console.log("loop");
 }
@@ -86,6 +95,7 @@ function updateGrounds(lap: number) {
     while ((target = grounds[0]) != undefined) {
         if (target.y + target.blockHeight < 0) {
             nowLevel++;
+            highestLevel = Math.max(nowLevel, highestLevel)
             grounds.shift();
         }
         else
@@ -113,8 +123,11 @@ function updateGrounds(lap: number) {
 }
 
 function updateBall(lap: number) {
-    if (ball.y - ball.radius < 0)
-        alert("Game Over");
+    if (ball.y - ball.radius < 0) {
+        endGame();
+
+        return;
+    }
 
     // down move
 
@@ -188,29 +201,73 @@ function updateBallSpeed(isTouch) {
     nowBallOnGround = isTouch;
 }
 
+function endGame() {
+    clearInterval(gameLoop);
+    console.log('Game over');
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = isDarkMode ? '#DDD' : "#333";
+    ctx.font = '40px sans-serif';
+    let textString = "GAME OVER";
+    ctx.fillText(textString , canvas.width/2, canvas.height/2);
+
+    
+    restartBtn.style.display = 'block';
+}
+
+function restartGame() {
+    restartBtn.style.display = '';
+    startGame();
+}
+
+function startGame() {
+    const now: number = new Date().getTime();
+
+    lastTickGroundMove = now;
+    lastTickBallMove = now;
+
+    nowGroundMovesPerSec = minGroundMovesPerSec; // 1 move = move 1 pixel up
+    nowBallToLeft = false;
+    nowBallToRight = false;
+    nowBallOnGround = false;
+    nowBallMovesPerSec = ballOnGroundMovesPerSec;
+    nowBallDownPerSec = ballFlyingDownPerSec;
+    nowLevel = 1;
+
+    grounds = [];
+    ball = new Ball();
+
+    gameLoop = setInterval(updateEvent, 1000 / targetFPS);
+}
+
+function tryRestartGame() {
+    if (restartBtn.style.display != '')
+        restartGame()
+}
+
 (function () {
+    isDarkMode = document.body.classList.contains('dark');
     canvas = <HTMLCanvasElement>document.getElementById("main");
+    level_num = document.querySelector('#level-num');
+    highest_level_num = document.querySelector('#highest-num');
+    restartBtn = document.querySelector('#middle-btn');
 
     if (canvas == null) return;
 
     ctx = canvas.getContext("2d");
 
     document.body.addEventListener('keydown', e => {
-        if (e.keyCode == 37) nowBallToLeft = true;
-        else if (e.keyCode == 39) nowBallToRight = true;
+        if (e.keyCode == 37 || e.keyCode == 65) nowBallToLeft = true;
+        else if (e.keyCode == 39 || e.keyCode == 68) nowBallToRight = true;
     });
 
     document.body.addEventListener('keyup', e => {
-        if (e.keyCode == 37) nowBallToLeft = false;
-        else if (e.keyCode == 39) nowBallToRight = false;
+        if (e.keyCode == 37 || e.keyCode == 65) nowBallToLeft = false;
+        else if (e.keyCode == 39 || e.keyCode == 68) nowBallToRight = false;
+        else if (e.keyCode == 13) tryRestartGame();
     });
 
     // init
 
-    const now: number = new Date().getTime();
-
-    lastTickGroundMove = now;
-    lastTickBallMove = now;
-
-    setInterval(updateEvent, 1000 / targetFPS);
+    startGame()
 })();

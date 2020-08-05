@@ -76,7 +76,7 @@ var Ball = /** @class */ (function () {
         ctx.fillStyle = 'red';
         ctx.fill();
         ctx.lineWidth = 0;
-        //ctx.strokeStyle = '#003300';
+        ctx.strokeStyle = isDarkMode ? '#fff' : '#000';
         ctx.stroke();
     };
     return Ball;
