@@ -1,7 +1,7 @@
 // setting start
 var targetFPS = 60;
 var minGroundMovesPerSec = 50;
-var maxGroundMovesPerSec = 215;
+var maxGroundMovesPerSec = 217;
 var ballOnGroundMovesPerSec = 200; //  1 move = move 1 pixel left or right
 var ballFlyingMovesPerSec = 100;
 var ballFlyingDownPerSec = 180;
@@ -13,21 +13,27 @@ var groundHolesProbability = {
 };
 // setting end
 // calc const
+var isDarkMode;
 var canvas;
 var ctx;
+var level_num;
+var highest_level_num;
+var restartBtn;
 // calc const end
 // variable start
-var nowGroundMovesPerSec = minGroundMovesPerSec; // 1 move = move 1 pixel up
-var nowBallToLeft = false;
-var nowBallToRight = false;
-var nowBallOnGround = false;
-var nowBallMovesPerSec = ballOnGroundMovesPerSec;
-var nowBallDownPerSec = ballFlyingDownPerSec;
-var nowLevel = 1;
-var lastTickGroundMove = 0;
-var lastTickBallMove = 0;
+var nowGroundMovesPerSec; // 1 move = move 1 pixel up
+var nowBallToLeft;
+var nowBallToRight;
+var nowBallOnGround;
+var nowBallMovesPerSec;
+var nowBallDownPerSec;
+var nowLevel;
+var lastTickGroundMove;
+var lastTickBallMove;
 var grounds = [];
 var ball = new Ball();
+var gameLoop;
+var highestLevel = 1;
 // vairable end
 function updateEvent() {
     var now = new Date().getTime();
@@ -50,6 +56,8 @@ function updateEvent() {
     // display
     grounds.forEach(function (g) { return g.draw(); });
     ball.draw();
+    level_num.innerText = nowLevel + '';
+    highest_level_num.innerText = highestLevel + '';
     console.log("loop");
 }
 function updateGrounds(lap) {
@@ -61,6 +69,7 @@ function updateGrounds(lap) {
     while ((target = grounds[0]) != undefined) {
         if (target.y + target.blockHeight < 0) {
             nowLevel++;
+            highestLevel = Math.max(nowLevel, highestLevel);
             grounds.shift();
         }
         else
@@ -80,8 +89,10 @@ function updateGrounds(lap) {
     //console.log(lap);
 }
 function updateBall(lap) {
-    if (ball.y - ball.radius < 0)
-        alert("Game Over");
+    if (ball.y - ball.radius < 0) {
+        endGame();
+        return;
+    }
     // down move
     var DownPixel = lap * nowBallDownPerSec / 1000;
     var touchTheGround = false;
@@ -138,26 +149,62 @@ function updateBallSpeed(isTouch) {
     }
     nowBallOnGround = isTouch;
 }
+function endGame() {
+    clearInterval(gameLoop);
+    console.log('Game over');
+    ctx.textAlign = "center";
+    ctx.fillStyle = isDarkMode ? '#DDD' : "#333";
+    ctx.font = '40px sans-serif';
+    var textString = "GAME OVER";
+    ctx.fillText(textString, canvas.width / 2, canvas.height / 2);
+    restartBtn.style.display = 'block';
+}
+function restartGame() {
+    restartBtn.style.display = '';
+    startGame();
+}
+function startGame() {
+    var now = new Date().getTime();
+    lastTickGroundMove = now;
+    lastTickBallMove = now;
+    nowGroundMovesPerSec = minGroundMovesPerSec; // 1 move = move 1 pixel up
+    nowBallToLeft = false;
+    nowBallToRight = false;
+    nowBallOnGround = false;
+    nowBallMovesPerSec = ballOnGroundMovesPerSec;
+    nowBallDownPerSec = ballFlyingDownPerSec;
+    nowLevel = 1;
+    grounds = [];
+    ball = new Ball();
+    gameLoop = setInterval(updateEvent, 1000 / targetFPS);
+}
+function tryRestartGame() {
+    if (restartBtn.style.display != '')
+        restartGame();
+}
 (function () {
+    isDarkMode = document.body.classList.contains('dark');
     canvas = document.getElementById("main");
+    level_num = document.querySelector('#level-num');
+    highest_level_num = document.querySelector('#highest-num');
+    restartBtn = document.querySelector('#middle-btn');
     if (canvas == null)
         return;
     ctx = canvas.getContext("2d");
     document.body.addEventListener('keydown', function (e) {
-        if (e.keyCode == 37)
+        if (e.keyCode == 37 || e.keyCode == 65)
             nowBallToLeft = true;
-        else if (e.keyCode == 39)
+        else if (e.keyCode == 39 || e.keyCode == 68)
             nowBallToRight = true;
     });
     document.body.addEventListener('keyup', function (e) {
-        if (e.keyCode == 37)
+        if (e.keyCode == 37 || e.keyCode == 65)
             nowBallToLeft = false;
-        else if (e.keyCode == 39)
+        else if (e.keyCode == 39 || e.keyCode == 68)
             nowBallToRight = false;
+        else if (e.keyCode == 13)
+            tryRestartGame();
     });
     // init
-    var now = new Date().getTime();
-    lastTickGroundMove = now;
-    lastTickBallMove = now;
-    setInterval(updateEvent, 1000 / targetFPS);
+    startGame();
 })();

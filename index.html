@@ -3,16 +3,80 @@
 <head>
     <title>Falling Ball</title>
     <style>
+        .dark {   
+            background-color: black !important;
+            color: white !important;
+        }
+
+        .dark * {
+            border-color: white !important;
+        }
+
+
+        .normal {
+            width: 400;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .footer {
+            font-size: 30px;
+            font-family: monospace;
+        }
+
+        .score-label {
+            min-width: 150px;
+            display: inline-block;
+        }
+
+        #title {
+            text-align: center;
+            font-size: 36px;
+            font-family: monospace;
+            margin-bottom: 10px;
+        }
+
         #main {
             margin: auto;
             display: block;
             border: 1px solid black;
         }
+
+        #level {
+            margin-top: 10px;
+        }
+
+        #middle-btn {
+            top: 49%;
+            position: absolute;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            display: none;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            user-select: none;
+        }
     </style>
 </head>
 
-<body>
+<body class="dark">
+    <div class="normal header">
+        <p id="title">Falling Ball</p>
+        <button id="middle-btn" onclick="restartGame()">Start Again</button>
+    </div>
     <canvas id="main" width="400" height="750"></canvas>
+    <div class="normal footer">
+        <span class='score-label' id="level">LEVEL:</span>
+        <span id="level-num"></span><br>
+        <span class='score-label' id="highest">HIGHEST:</span>
+        <span id="highest-num"></span>
+    </div>
     <script src="./obj.js"></script>
     <script src="./index.js"></script>
 </body>
