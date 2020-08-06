@@ -40,7 +40,7 @@ let grounds: Array<Ground> = [];
 let ball: Ball = new Ball();
 let gameLoop;
 
-let highestLevel : number = 1;
+let highestLevel : number;
 
 // vairable end
 
@@ -213,6 +213,8 @@ function endGame() {
 
     
     restartBtn.style.display = 'block';
+
+    document.cookie = "highest=" + highestLevel;
 }
 
 function restartGame() {
@@ -251,6 +253,10 @@ function tryRestartGame() {
     level_num = document.querySelector('#level-num');
     highest_level_num = document.querySelector('#highest-num');
     restartBtn = document.querySelector('#middle-btn');
+
+    highestLevel = parseInt(document.cookie.split('=')[1]) || 0;
+
+    console.log(document.cookie)
 
     if (canvas == null) return;
 
