@@ -77,7 +77,7 @@ class Ground {
     }
 
     draw() {
-        ctx.fillStyle = 'lightblue';
+        ctx.fillStyle = isDarkMode ? 'blue' : 'lightblue';
         this.blocks.forEach(b => ctx.fillRect(b.x, this.y, b.width, this.blockHeight));
     }
 }

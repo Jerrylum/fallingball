@@ -59,7 +59,7 @@ var Ground = /** @class */ (function () {
     };
     Ground.prototype.draw = function () {
         var _this = this;
-        ctx.fillStyle = 'lightblue';
+        ctx.fillStyle = isDarkMode ? 'blue' : 'lightblue';
         this.blocks.forEach(function (b) { return ctx.fillRect(b.x, _this.y, b.width, _this.blockHeight); });
     };
     return Ground;
