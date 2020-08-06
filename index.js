@@ -33,7 +33,7 @@ var lastTickBallMove;
 var grounds = [];
 var ball = new Ball();
 var gameLoop;
-var highestLevel = 1;
+var highestLevel;
 // vairable end
 function updateEvent() {
     var now = new Date().getTime();
@@ -158,6 +158,7 @@ function endGame() {
     var textString = "GAME OVER";
     ctx.fillText(textString, canvas.width / 2, canvas.height / 2);
     restartBtn.style.display = 'block';
+    document.cookie = "highest=" + highestLevel;
 }
 function restartGame() {
     restartBtn.style.display = '';
@@ -188,6 +189,8 @@ function tryRestartGame() {
     level_num = document.querySelector('#level-num');
     highest_level_num = document.querySelector('#highest-num');
     restartBtn = document.querySelector('#middle-btn');
+    highestLevel = parseInt(document.cookie.split('=')[1]) || 0;
+    console.log(document.cookie);
     if (canvas == null)
         return;
     ctx = canvas.getContext("2d");
